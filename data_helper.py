@@ -14,9 +14,15 @@ class DataSet:
         self.matrix, self.movie_map, self.users = self.rating_matrix()
         self.data_reader()
 
+        # a function that helps to convert movie-id into movie-name.
         self.id2movie = lambda idx: self.movie_map[str(idx)]
 
+        self.move_pop_rank = self.most_pop_movie()
+
     def data_reader(self):
+        """
+        Read rating file and fill self.matrix with rate.
+        """
         with open(Config.rating_data_path, 'rb') as f:
             for line in f.readlines():
                 try:
@@ -29,6 +35,12 @@ class DataSet:
 
     @staticmethod
     def rating_matrix():
+        """
+        :return:
+        data_matrix: is an empty matrix(actually is filled by zeros.) which has size [users' num * movies' num'].
+        movies: is a dictionary which key is movie-id and value is movie name.
+        users: is a list, all the user-ids' collection.
+        """
         movies = {}
         with open(Config.movies_data_path, 'rb') as f:
             f_lines = f.readlines()
@@ -53,8 +65,27 @@ class DataSet:
         data_matrix = np.zeros([users_counter, movies_counter])
         return data_matrix, movies, users
 
+    def movie_rated(self, user_id):
+        """
+        :return: all movies' name that have been rated by USER-ID.
+        """
+        user_array = list(self.matrix[user_id - 1])
+        rated = []
+        for i, rate in enumerate(user_array):
+            if rate > 0:
+                rated.append(self.id2movie(i+1))
+        print('User[{}] rated movie: {}'.format(user_id, ' | '.join(rated)))
+
+    def most_pop_movie(self):
+        """
+        Calculate every movie's average rate.
+        :return: a dictionary, key is movie-id, value is movie-rate.
+        """
+        movie_rate_sum = list(np.mean(self.matrix, axis=0))
+        movie_rank = sorted(enumerate(movie_rate_sum), key=lambda x: x[1], reverse=True)
+        return dict(movie_rank)
+
 
 if __name__ == "__main__":
     data = DataSet()
-    print(data.matrix[0, 1192])
-    print(data.id2movie(2222))
+    data.movie_rated(5342)

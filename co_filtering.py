@@ -79,16 +79,19 @@ class CoFiltering:
 
         movie_list = []
         while True:
-            for movie, _ in recommend:
-                movie_list.append(self.data.id2movie(movie + 1))
-                if len(movie_list) == recommend_num:
+            for i in range(1, 6).__reversed__():
+                temp_list = filter(lambda x: x[1] == i, recommend)
+                temp_list = sorted(temp_list, key=lambda x: self.data.move_pop_rank[x[0]], reverse=True)
+                movie_list.extend([x[0] + 1 for x in temp_list])
+                if len(movie_list) >= recommend_num:
                     break
                 else:
                     continue
             break
+        movie_list = [self.data.id2movie(x) for x in movie_list[:recommend_num]]
         print('Recommend movies: {}'.format(' | '.join(movie_list)))
 
 
 if __name__ == "__main__":
     cf = CoFiltering()
-    cf.predict(1, 5, 5)
+    cf.predict(5342, 5, 5)
