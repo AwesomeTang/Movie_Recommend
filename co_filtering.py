@@ -73,16 +73,18 @@ class CoFiltering:
         recommend = []
         for user_id, val in results:
             diff_list = list(self.data.matrix[user_id] - self.data.matrix[user])
-            temp = filter(lambda x: x[1] > 0, enumerate(diff_list))
+            temp = filter(lambda item: item[1] > 0, enumerate(diff_list))
             recommend.extend(temp)
-        recommend = sorted(recommend, key=lambda x: x[1], reverse=True)
+        recommend = sorted(recommend, key=lambda item: item[1], reverse=True)
 
         movie_list = []
         while True:
             for i in range(1, 6).__reversed__():
                 temp_list = filter(lambda x: x[1] == i, recommend)
                 temp_list = sorted(temp_list, key=lambda x: self.data.move_pop_rank[x[0]], reverse=True)
-                movie_list.extend([x[0] + 1 for x in temp_list])
+                for x, y in temp_list:
+                    if x + 1 not in movie_list:
+                        movie_list.append(x + 1)
                 if len(movie_list) >= recommend_num:
                     break
                 else:
@@ -94,4 +96,4 @@ class CoFiltering:
 
 if __name__ == "__main__":
     cf = CoFiltering()
-    cf.predict(5342, 5, 5)
+    cf.predict(5999, 2, 5)
